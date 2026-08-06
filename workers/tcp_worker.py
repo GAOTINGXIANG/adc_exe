@@ -1,9 +1,9 @@
 import threading
 import socket
 
-from signals import Signals
-from data_state import DataState
-from data_parser import DataParser
+from core.signals import Signals
+from core.data_state import DataState
+from core.data_parser import DataParser
 
 
 class TcpWorker:

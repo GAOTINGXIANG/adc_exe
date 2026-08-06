@@ -3,9 +3,9 @@ import threading
 import serial
 import serial.tools.list_ports
 
-from signals import Signals
-from data_state import DataState
-from data_parser import DataParser
+from core.signals import Signals
+from core.data_state import DataState
+from core.data_parser import DataParser
 
 
 class SerialWorker:
