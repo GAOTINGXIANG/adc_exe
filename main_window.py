@@ -110,20 +110,20 @@ class MainWindow(QMainWindow):
     # ===================== 帮助弹窗 =====================
     def show_help_dialog(self):
         help_text = """
-ESP32 ADC 双模式上位机 使用说明
+ESP32 双模式上位机 使用说明
 
 1. 连接模式
    • 串口接收：选择COM口，点击连接，波特率115200
    • 网络接收：输入服务器IP和端口，点击连接
 
 2. 数据显示
-   • 实时波形：显示4路ADC 0~4095采样值曲线（红/蓝/紫/绿）
+   • 实时波形：显示4路传感器 0~4095采样值曲线（红/蓝/紫/绿）
    • 温湿度：自动解析TEM/HUM数据并显示
    • 日志区：显示接收、发送、连接状态信息
 
 3. 图表控制
    • 采样点数：调整横轴数据总量，调整时保留已有数据的连续性
-   • ADC选择：点击按钮切换显示/隐藏对应ADC曲线
+   • 曲线选择：点击按钮切换显示/隐藏对应曲线（T1=红色, T2=蓝色, M1=紫色, M2=绿色）
    • 自动滚动：开启后曲线随新数据自动向右滚动
    • 自动匹配：点击一次，自动调整X/Y轴范围以适配当前数据
    • 清除图表：清空图表中所有历史数据
@@ -131,8 +131,8 @@ ESP32 ADC 双模式上位机 使用说明
 4. 控制功能
    • 采样频率：设置上位机采样刷新频率（HZ/S），默认1Hz
    • 风扇控制：点击开/关，通过串口发送指令
-   • ADC通道：每路ADC可选0-7通道，对应电阻：10K/100K/1M/10M/100M/500M/1G/10G
-   • ADC温度百分比：每路ADC独立设置0~100%，点击发送
+   • 采样通道：每路传感器可选0-6通道，对应电阻：10K/100K/1M/10M/100M/1G/10G
+   • 温度百分比：每路传感器独立设置0~100%，点击发送
    • 加热台控制：点击开/关，通过串口发送指令
 
 5. 数据格式（设备端需发送）
@@ -148,7 +148,7 @@ ESP32 ADC 双模式上位机 使用说明
    • 自动滚动：开启时新日志自动滚动到底部，关闭可翻阅历史
 
 7. 数据功能
-   • 导出CSV：保存采集的时间、4路ADC、温湿度数据
+   • 导出CSV：保存采集的时间、4路传感器、温湿度数据
 8. 答疑邮箱
     1913000981@qq.com
 9.开源网址
@@ -453,32 +453,32 @@ ESP32 ADC 双模式上位机 使用说明
 
         plot_control_layout.addSpacing(20)
 
-        # ADC选择按钮
-        self.adc1_btn = QPushButton("ADC1")
+        # 曲线选择按钮
+        self.adc1_btn = QPushButton("T1")
         self.adc1_btn.setCheckable(True)
         self.adc1_btn.setChecked(True)
         self.adc1_btn.setStyleSheet("background-color: red; color: white;")
         self.adc1_btn.clicked.connect(self.toggle_adc1_display)
 
-        self.adc2_btn = QPushButton("ADC2")
+        self.adc2_btn = QPushButton("T2")
         self.adc2_btn.setCheckable(True)
         self.adc2_btn.setChecked(True)
         self.adc2_btn.setStyleSheet("background-color: blue; color: white;")
         self.adc2_btn.clicked.connect(self.toggle_adc2_display)
 
-        self.adc3_btn = QPushButton("ADC3")
+        self.adc3_btn = QPushButton("M1")
         self.adc3_btn.setCheckable(True)
         self.adc3_btn.setChecked(True)
         self.adc3_btn.setStyleSheet("background-color: purple; color: white;")
         self.adc3_btn.clicked.connect(self.toggle_adc3_display)
 
-        self.adc4_btn = QPushButton("ADC4")
+        self.adc4_btn = QPushButton("M2")
         self.adc4_btn.setCheckable(True)
         self.adc4_btn.setChecked(True)
         self.adc4_btn.setStyleSheet("background-color: green; color: white;")
         self.adc4_btn.clicked.connect(self.toggle_adc4_display)
 
-        plot_control_layout.addWidget(QLabel("ADC选择:"))
+        plot_control_layout.addWidget(QLabel("曲线选择:"))
         plot_control_layout.addWidget(self.adc1_btn)
         plot_control_layout.addWidget(self.adc2_btn)
         plot_control_layout.addWidget(self.adc3_btn)
@@ -535,35 +535,35 @@ ESP32 ADC 双模式上位机 使用说明
 
         # ========== 波形图 ==========
         self.plot_widget = pg.PlotWidget()
-        self.plot_widget.setTitle("ADC 实时波形", color="w", size="14pt")
+        self.plot_widget.setTitle("实时波形", color="w", size="14pt")
         self.plot_widget.setLabel("left", "ADC Value")
         self.plot_widget.setLabel("bottom", "Points")
         self.plot_widget.setYRange(0, 4095)
 
-        # 4条曲线，颜色分别为红色、蓝色、紫色、黑色
+        # 4条曲线，颜色分别为红色、蓝色、紫色、绿色
         self.curve1 = self.plot_widget.plot(
             self.data_x, self.data_y1,
             pen=pg.mkPen(color="red", width=2),
             symbol="o", symbolSize=4, symbolBrush="red",
-            name="ADC1"
+            name="T1"
         )
         self.curve2 = self.plot_widget.plot(
             self.data_x, self.data_y2,
             pen=pg.mkPen(color="blue", width=2),
             symbol="o", symbolSize=4, symbolBrush="blue",
-            name="ADC2"
+            name="T2"
         )
         self.curve3 = self.plot_widget.plot(
             self.data_x, self.data_y3,
             pen=pg.mkPen(color="purple", width=2),
             symbol="o", symbolSize=4, symbolBrush="purple",
-            name="ADC3"
+            name="M1"
         )
         self.curve4 = self.plot_widget.plot(
             self.data_x, self.data_y4,
             pen=pg.mkPen(color="green", width=2),
             symbol="o", symbolSize=4, symbolBrush="green",
-            name="ADC4"
+            name="M2"
         )
 
         # 添加图例
@@ -616,11 +616,12 @@ ESP32 ADC 双模式上位机 使用说明
 
         self.ctrl_group.setLayout(ctrl_layout)
 
-        # 2. ADC采样通道选择（2x2布局）+ 自动匹配
-        self.adc_ch_group = QGroupBox("ADC采样通道")
+        # 2. 采样通道选择（2x2布局）+ 自动匹配
+        self.adc_ch_group = QGroupBox("采样通道")
         self.adc_ch_labels = {}
         self.adc_ch_spins = {}
-        channel_names = ["10K", "100K", "1M", "10M", "100M", "500M", "1G", "10G"]
+        channel_names = ["10K", "100K", "1M", "10M", "100M", "1G", "10G"]
+        hw_names = {1: 'T1', 2: 'T2', 3: 'M1', 4: 'M2'}
 
         # 左侧：ADC通道选择网格
         adc_ch_grid = QVBoxLayout()
@@ -632,12 +633,12 @@ ESP32 ADC 双模式上位机 使用说明
             for col in range(2):
                 i = row * 2 + col + 1
                 spin = QSpinBox()
-                spin.setRange(0, 7)
+                spin.setRange(0, 6)
                 spin.setValue(0)
                 spin.setFixedWidth(100)
                 spin.setSuffix(f"  ({channel_names[0]})")
                 spin.valueChanged.connect(lambda val, idx=i, sp=spin: self._on_adc_ch_changed(idx, val, sp))
-                label = QLabel(f"ADC{i}:")
+                label = QLabel(f"{hw_names[i]}:")
                 self.adc_ch_spins[i] = spin
                 self.adc_ch_labels[i] = label
                 row_layout.addWidget(label)
@@ -648,7 +649,7 @@ ESP32 ADC 双模式上位机 使用说明
         # 底部：ADC范围 + 自动匹配按钮（与四路通道对齐）
         adc_match_row = QHBoxLayout()
         adc_match_row.setSpacing(6)
-        adc_match_row.addWidget(QLabel("ADC范围:"))
+        adc_match_row.addWidget(QLabel("范围:"))
         self.adc_range_low_spin = QSpinBox()
         self.adc_range_low_spin.setRange(0, 4095)
         self.adc_range_low_spin.setValue(100)
@@ -679,8 +680,8 @@ ESP32 ADC 双模式上位机 使用说明
         adc_ch_inner.addLayout(adc_match_row)
         self.adc_ch_group.setLayout(adc_ch_inner)
 
-        # 3. ADC温度百分比控制（2x2布局）
-        self.adc_temp_group = QGroupBox("ADC温度百分比")
+        # 3. 温度百分比控制（2x2布局）
+        self.adc_temp_group = QGroupBox("温度百分比")
         self.adc_temp_sliders = {}
         self.adc_temp_labels = {}
         adc_temp_layout = QVBoxLayout()
@@ -699,7 +700,7 @@ ESP32 ADC 双模式上位机 使用说明
                 slider = QSlider(Qt.Horizontal)
                 slider.setRange(0, 100)
                 slider.setValue(50)
-                label = QLabel(f"ADC{i}：50 %")
+                label = QLabel(f"{hw_names[i]}：50 %")
 
                 btn_row = QHBoxLayout()
                 btn_row.addWidget(label)
@@ -710,7 +711,7 @@ ESP32 ADC 双模式上位机 使用说明
                 send_btn.clicked.connect(lambda checked=False, idx=i, sl=slider: self.send_adc_temp_percent(idx, sl))
                 btn_row.addWidget(send_btn)
 
-                slider.valueChanged.connect(lambda val, idx=i, lb=label: lb.setText(f"ADC{idx}：{val} %"))
+                slider.valueChanged.connect(lambda val, idx=i, lb=label: lb.setText(f"{hw_names[idx]}：{val} %"))
 
                 col_layout.addWidget(slider)
                 col_layout.addLayout(btn_row)
@@ -776,7 +777,7 @@ ESP32 ADC 双模式上位机 使用说明
             row_layout.setSpacing(15)
             for col in range(2):
                 i = row * 2 + col + 1
-                label = QLabel(f"R{i}：--- Ω")
+                label = QLabel(f"{hw_names[i]}：--- Ω")
                 font_res = label.font()
                 font_res.setPointSize(11)
                 label.setFont(font_res)
@@ -894,7 +895,7 @@ ESP32 ADC 双模式上位机 使用说明
             QMessageBox.information(self, "提示", "暂无可导出数据！")
             return
         file_path, _ = QFileDialog.getSaveFileName(
-            self, "保存数据", f"ADC数据_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv",
+            self, "保存数据", f"传感器数据_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv",
             "CSV文件(*.csv);;所有文件(*)"
         )
         if not file_path:
@@ -902,7 +903,7 @@ ESP32 ADC 双模式上位机 使用说明
         try:
             with open(file_path, "w", newline="", encoding="utf-8-sig") as f:
                 writer = csv.writer(f)
-                writer.writerow(["时间", "ADC1", "ADC2", "ADC3", "ADC4", "温度(℃)", "湿度(%RH)"])
+                writer.writerow(["时间", "T1", "T2", "M1", "M2", "温度(℃)", "湿度(%RH)"])
                 writer.writerows(data)
             self.sig.log.emit(f"数据导出成功：{os.path.basename(file_path)}")
             QMessageBox.information(self, "成功", "数据导出完成！")
@@ -924,7 +925,7 @@ ESP32 ADC 双模式上位机 使用说明
     # ===================== ADC通道选择 =====================
     def _on_adc_ch_changed(self, adc_idx, val, spin):
         """ADC通道选择变更时：更新后缀显示，发送指令 ADCx:y"""
-        channel_names = ["10K", "100K", "1M", "10M", "100M", "500M", "1G", "10G"]
+        channel_names = ["10K", "100K", "1M", "10M", "100M", "1G", "10G"]
         spin.setSuffix(f"  ({channel_names[val]})")
 
         send_str = f"CHANNEL{adc_idx}:{val}\n"
@@ -940,7 +941,7 @@ ESP32 ADC 双模式上位机 使用说明
             else:
                 self.sig.log.emit("❌ 网络发送失败")
         else:
-            self.sig.log.emit("❌ 未连接，无法发送ADC通道指令")
+            self.sig.log.emit("❌ 未连接，无法发送通道指令")
 
     # ===================== ADC通道自动匹配 =====================
     def _on_adc_auto_match_start(self):
@@ -948,7 +949,7 @@ ESP32 ADC 双模式上位机 使用说明
         if self.adc_match_running:
             return
         if not self.serial_worker.is_connected and not self.tcp_worker.is_connected:
-            self.sig.log.emit("❌ 未连接，无法执行ADC自动匹配")
+            self.sig.log.emit("❌ 未连接，无法执行自动匹配")
             return
 
         self.adc_match_running = True
@@ -964,13 +965,13 @@ ESP32 ADC 双模式上位机 使用说明
         delay_ms = self.adc_delay_spin.value()
         # 每个ADC独立的并行状态
         self.match_state = {
-            1: {'channel': 7, 'phase': 'send', 'ticks': 0},
-            2: {'channel': 7, 'phase': 'send', 'ticks': 0},
-            3: {'channel': 7, 'phase': 'send', 'ticks': 0},
-            4: {'channel': 7, 'phase': 'send', 'ticks': 0},
+            1: {'channel': 6, 'phase': 'send', 'ticks': 0},
+            2: {'channel': 6, 'phase': 'send', 'ticks': 0},
+            3: {'channel': 6, 'phase': 'send', 'ticks': 0},
+            4: {'channel': 6, 'phase': 'send', 'ticks': 0},
             'results': {},       # {adc_idx: channel_or_None}
         }
-        self.sig.log.emit(f"=== 开始ADC自动匹配（四路并行），ADC范围：[{range_low} ~ {range_high}]，延迟：{delay_ms}ms ===")
+        self.sig.log.emit(f"=== 开始自动匹配（四路并行），范围：[{range_low} ~ {range_high}]，延迟：{delay_ms}ms ===")
         self.adc_match_timer.start(delay_ms)
 
     def _adc_match_tick(self):
@@ -978,7 +979,8 @@ ESP32 ADC 双模式上位机 使用说明
         range_low = self.adc_range_low_spin.value()
         range_high = self.adc_range_high_spin.value()
         delay_ms = self.adc_delay_spin.value()
-        ch_names = ["10K", "100K", "1M", "10M", "100M", "500M", "1G", "10G"]
+        ch_names = ["10K", "100K", "1M", "10M", "100M", "1G", "10G"]
+        hw = {1: 'T1', 2: 'T2', 3: 'M1', 4: 'M2'}
 
         # 一次性读取四路ADC值
         adc1, adc2, adc3, adc4 = self.state.get_adc_values()
@@ -1003,7 +1005,7 @@ ESP32 ADC 双模式上位机 使用说明
                 elif self.net_radio.isChecked() and self.tcp_worker.is_connected:
                     sent = self.tcp_worker.send(send_str)
                 if sent:
-                    self.sig.log.emit(f"ADC{adc}: → 通道{ch}({ch_name}) 已发送切换指令，等待{delay_ms}ms读取ADC...")
+                    self.sig.log.emit(f"{hw[adc]}: → 通道{ch}({ch_name}) 已发送切换指令，等待{delay_ms}ms读取...")
                     st['phase'] = 'wait'
                     st['ticks'] = 0
 
@@ -1015,7 +1017,7 @@ ESP32 ADC 双模式上位机 使用说明
                     if range_low <= val <= range_high:
                         # 匹配成功
                         self.match_state['results'][adc] = ch
-                        self.sig.log.emit(f"ADC{adc}: 通道{ch}({ch_name}) ✅ 匹配成功 (ADC值={val} 在范围[{range_low}~{range_high}])")
+                        self.sig.log.emit(f"{hw[adc]}: 通道{ch}({ch_name}) ✅ 匹配成功 (值={val} 在范围[{range_low}~{range_high}])")
                         spin = self.adc_ch_spins[adc]
                         spin.blockSignals(True)
                         spin.setValue(ch)
@@ -1028,13 +1030,13 @@ ESP32 ADC 双模式上位机 使用说明
                         if st['channel'] < 0:
                             # 所有通道均未匹配
                             self.match_state['results'][adc] = None
-                            self.sig.log.emit(f"ADC{adc}: 通道{ch}({ch_name}) ADC值={val} 不在范围[{range_low}~{range_high}]，已是最后一个通道")
-                            self.sig.log.emit(f"ADC{adc}: ❌ 所有通道(7→0)均未匹配成功（范围=[{range_low}~{range_high}]）")
+                            self.sig.log.emit(f"{hw[adc]}: 通道{ch}({ch_name}) 值={val} 不在范围[{range_low}~{range_high}]，已是最后一个通道")
+                            self.sig.log.emit(f"{hw[adc]}: ❌ 所有通道(6→0)均未匹配成功（范围=[{range_low}~{range_high}]）")
                             self.match_state[adc] = None  # 标记完成
                         else:
                             next_ch = st['channel']
                             next_name = ch_names[next_ch]
-                            self.sig.log.emit(f"ADC{adc}: 通道{ch}({ch_name}) ADC值={val} 不在范围[{range_low}~{range_high}]，→ 通道{next_ch}({next_name})")
+                            self.sig.log.emit(f"{hw[adc]}: 通道{ch}({ch_name}) 值={val} 不在范围[{range_low}~{range_high}]，→ 通道{next_ch}({next_name})")
                             st['phase'] = 'send'
                             st['ticks'] = 0
 
@@ -1053,12 +1055,13 @@ ESP32 ADC 双模式上位机 使用说明
         results = self.match_state.get('results', {})
         matched = {k: v for k, v in results.items() if v is not None}
         failed = {k for k, v in results.items() if v is None}
-        self.sig.log.emit(f"=== ADC自动匹配完成 成功:{len(matched)}/4 ===")
+        hw = {1: 'T1', 2: 'T2', 3: 'M1', 4: 'M2'}
+        self.sig.log.emit(f"=== 自动匹配完成 成功:{len(matched)}/4 ===")
         for adc, ch in matched.items():
-            ch_name = ["10K", "100K", "1M", "10M", "100M", "500M", "1G", "10G"][ch]
-            self.sig.log.emit(f"ADC{adc} → 通道{ch}({ch_name})")
+            ch_name = ["10K", "100K", "1M", "10M", "100M", "1G", "10G"][ch]
+            self.sig.log.emit(f"{hw[adc]} → 通道{ch}({ch_name})")
         for adc in failed:
-            self.sig.log.emit(f"ADC{adc} → 未匹配成功")
+            self.sig.log.emit(f"{hw[adc]} → 未匹配成功")
 
     # ===================== ADC温度百分比发送 =====================
     def send_adc_temp_percent(self, adc_idx, slider):
@@ -1117,8 +1120,9 @@ ESP32 ADC 双模式上位机 使用说明
     # ===================== 阻值计算UI刷新 =====================
     def update_resistance_ui(self, adc1, adc2, adc3, adc4):
         """根据ADC值和当前采样电阻通道计算并显示阻值"""
-        channel_res = [10000, 100000, 1000000, 10000000, 100000000, 500000000, 1000000000, 10000000000]
+        channel_res = [10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000]
         adc_vals = {1: adc1, 2: adc2, 3: adc3, 4: adc4}
+        hw = {1: 'T1', 2: 'T2', 3: 'M1', 4: 'M2'}
 
         for i in range(1, 5):
             adc = adc_vals[i]
@@ -1126,20 +1130,20 @@ ESP32 ADC 双模式上位机 使用说明
             R = channel_res[ch]
 
             if adc >= 4095:
-                self.res_labels[i].setText(f"R{i}：∞ Ω")
+                self.res_labels[i].setText(f"{hw[i]}：∞ Ω")
             elif adc == 0:
-                self.res_labels[i].setText(f"R{i}：0 Ω")
+                self.res_labels[i].setText(f"{hw[i]}：0 Ω")
             else:
                 r = R * adc / (4095 - adc)
                 # 自动选择合适的单位
                 if r >= 1e9:
-                    self.res_labels[i].setText(f"R{i}：{r/1e9:.2f} GΩ")
+                    self.res_labels[i].setText(f"{hw[i]}：{r/1e9:.2f} GΩ")
                 elif r >= 1e6:
-                    self.res_labels[i].setText(f"R{i}：{r/1e6:.2f} MΩ")
+                    self.res_labels[i].setText(f"{hw[i]}：{r/1e6:.2f} MΩ")
                 elif r >= 1e3:
-                    self.res_labels[i].setText(f"R{i}：{r/1e3:.2f} KΩ")
+                    self.res_labels[i].setText(f"{hw[i]}：{r/1e3:.2f} KΩ")
                 else:
-                    self.res_labels[i].setText(f"R{i}：{r:.1f} Ω")
+                    self.res_labels[i].setText(f"{hw[i]}：{r:.1f} Ω")
 
     # ===================== 串口列表刷新 =====================
     def refresh_ports(self):
@@ -1204,7 +1208,7 @@ ESP32 ADC 双模式上位机 使用说明
             self.update_resistance_ui(adc1, adc2, adc3, adc4)
 
         if not self.log_paused:
-            self.sig.log.emit(f"ADC1={adc1:4d}  ADC2={adc2:4d}  ADC3={adc3:4d}  ADC4={adc4:4d}")
+            self.sig.log.emit(f"T1={adc1:4d}  T2={adc2:4d}  M1={adc3:4d}  M2={adc4:4d}")
 
     def apply_sample_freq(self):
         try:
@@ -1226,7 +1230,7 @@ ESP32 ADC 双模式上位机 使用说明
 
     def update_data(self, channel, val):
         # 计算阻值
-        channel_res = [10000, 100000, 1000000, 10000000, 100000000, 500000000, 1000000000, 10000000000]
+        channel_res = [10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000]
         ch = self.adc_ch_spins[channel].value()
         R = channel_res[ch]
         if val >= 4095:
